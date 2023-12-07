@@ -150,7 +150,7 @@ function filter_peaks(){
  	if [[ $TARGET == "Input" ]]; then bamfiles=$Inputbam; fi
 	echo "Filtering merged peaks using input read counts"
         
-	Rscript $HOME/R_script/run_filter_peaks_by_Input.R $bamfiles $Inputbam ${OUTdir}/combined_CITS_${pv}_${TARGET}.merged.bed $InputDir 0.5 FALSE
+	Rscript run_filter_peaks_by_Input.R $bamfiles $Inputbam ${OUTdir}/combined_CITS_${pv}_${TARGET}.merged.bed $InputDir 0.5 FALSE
 
 	rm ${OUTdir}/combined_CITS_${pv}_${TARGET}.bed ${OUTdir}/combined_CIMS_${pv}_${TARGET}.bed
 }

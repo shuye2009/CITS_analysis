@@ -44,11 +44,11 @@ pv=$4 ## something like 10e-10 or 0.01
 
 #if [[ $factor == "Input" ]]; then pv=10e-10; fi
 if [[ $# -lt 2 ]]; then
-                echo "Enter: <factor> for the first argument, use any factor but not 'all' for function crosslink_hotspot!"
+        echo "Enter: <factor> for the first argument, use any factor but not 'all' for function crosslink_hotspot!"
 		echo "Enter: combine, crosslink_hotspot, filter_peaks or discover_motif for the second argument"
 		echo "Enter: true or false for the third argument, to indicate whether exiting files should be replaced"
 		echo "Enter: pvalue to peak thresholding, like 0.01 or 10e-10"
-                exit 1
+        exit 1
 fi
 
 main "$wd" "$pv" "$factor" $fun $replace
