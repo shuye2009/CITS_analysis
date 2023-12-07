@@ -3,7 +3,7 @@
 bamf=$1
 inputd=$2
 outd=$3
-pv=0.05 ## default pvalue, can be thresholded later on
+pv=0.01 ## default pvalue, can be thresholded later on
 
 ctkdir=$HOME/ctk-1.1.4
 if [ -d $outd ]; then rm -r $outd; fi
@@ -12,7 +12,7 @@ mkdir -p $outd
 basef=$(basename "${bamf}" .bam)
 if [[ ! -e $inputd/${basef}.sam ]]; then
 	echo "bam to sam conversion"
-	/usr/bin/samtools view --threads 2 $inputd/$bamf > $inputd/${basef}.sam
+	/usr/bin/samtools view --threads 4 $inputd/$bamf > $inputd/${basef}.sam
 fi
 
 perl $ctkdir/parseAlignment.pl -v --map-qual 40 --min-len 18 --mutation-file ${outd}/${basef}.mutation.txt $inputd/${basef}.sam ${outd}/${basef}.tag.bed
