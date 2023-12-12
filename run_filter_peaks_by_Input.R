@@ -6,7 +6,7 @@
 ## date created: June 17, 2022
 
 print("Running run_filter_peaks_by_Input.R ......")
-source("GenomicPlot_legacy.R")
+source("/home/greenblattlab/shuyepu/Nabeel/clip_analysis/scripts_program/CITS_CIMS/GenomicPlot_legacy.R")
 
 args <- commandArgs(trailingOnly = T)
 queryfiles <- unlist(strsplit(args[1], split=",", fixed=T)) # CLIP files in bam format, separated by comma

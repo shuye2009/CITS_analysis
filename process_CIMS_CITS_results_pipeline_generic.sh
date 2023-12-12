@@ -42,19 +42,19 @@ function combine(){
 
 		${scriptDir}/CITS_analysis_thresholding.sh $factor $d $pv
 
-		cat ${d}/${factor}.tag.CITS.${pv}.bed | sort -T $rd -k1,1 -k2,2n | mergeBed -i stdin -s -d 1 -c 4,5,6 -o collapse,count,distinct -delim "|" | cut -f1-6 >> ${OUTdir}/combined_CITS_${pv}_${TARGET}.bed
-             	cat ${d}/${factor}.tag.CIMS.${pv}.bed | sort -T $rd -k1,1 -k2,2n | mergeBed -i stdin -s -d 1 -c 4,5,6 -o collapse,count,distinct -delim "|" | cut -f1-6 >> ${OUTdir}/combined_CIMS_${pv}_${TARGET}.bed
+		cat ${d}/${factor}.tag.CITS.${pv}.bed | sort -T $rd -k1,1 -k2,2n | bedtools merge -i stdin -s -d 1 -c 4,5,6 -o collapse,count,distinct -delim "|" | cut -f1-6 >> ${OUTdir}/combined_CITS_${pv}_${TARGET}.bed
+             	cat ${d}/${factor}.tag.CIMS.${pv}.bed | sort -T $rd -k1,1 -k2,2n | bedtools merge -i stdin -s -d 1 -c 4,5,6 -o collapse,count,distinct -delim "|" | cut -f1-6 >> ${OUTdir}/combined_CIMS_${pv}_${TARGET}.bed
 
 	done
 
 
-	echo "Merging crosslink sites using mergeBed"
+	echo "Merging crosslink sites using bedtools merge"
 
-	cat ${OUTdir}/combined_CIMS_${pv}_${TARGET}.bed | sort -k1,1 -k2,2n | mergeBed -i stdin -s -d 1 -c 4,5,6 -o collapse,count,distinct -delim "&" | cut -f1-6 | sort -k5,5nr > ${OUTdir}/combined_CIMS_${pv}_${TARGET}.premerged.bed
+	cat ${OUTdir}/combined_CIMS_${pv}_${TARGET}.bed | sort -k1,1 -k2,2n | bedtools merge -i stdin -s -d 1 -c 4,5,6 -o collapse,count,distinct -delim "&" | cut -f1-6 | sort -k5,5nr > ${OUTdir}/combined_CIMS_${pv}_${TARGET}.premerged.bed
 
-	cat ${OUTdir}/combined_CITS_${pv}_${TARGET}.bed | sort -k1,1 -k2,2n | mergeBed -i stdin -s -d 1 -c 4,5,6 -o collapse,count,distinct -delim "&" | cut -f1-6 | sort -k5,5nr > ${OUTdir}/combined_CITS_${pv}_${TARGET}.premerged.bed
+	cat ${OUTdir}/combined_CITS_${pv}_${TARGET}.bed | sort -k1,1 -k2,2n | bedtools merge -i stdin -s -d 1 -c 4,5,6 -o collapse,count,distinct -delim "&" | cut -f1-6 | sort -k5,5nr > ${OUTdir}/combined_CITS_${pv}_${TARGET}.premerged.bed
 
-	cat ${OUTdir}/combined_CIMS_${pv}_${TARGET}.bed ${OUTdir}/combined_CITS_${pv}_${TARGET}.bed | sort -k1,1 -k2,2n | mergeBed -i stdin -s -d 1 -c 4,5,6 -o collapse,count,distinct -delim "&" | cut -f1-6 | sort -k5,5nr > ${OUTdir}/combined_crosslink_${pv}_${TARGET}.premerged.bed
+	cat ${OUTdir}/combined_CIMS_${pv}_${TARGET}.bed ${OUTdir}/combined_CITS_${pv}_${TARGET}.bed | sort -k1,1 -k2,2n | bedtools merge -i stdin -s -d 1 -c 4,5,6 -o collapse,count,distinct -delim "&" | cut -f1-6 | sort -k5,5nr > ${OUTdir}/combined_crosslink_${pv}_${TARGET}.premerged.bed
 
 	rm -rf $rd
 }
@@ -93,7 +93,7 @@ function crosslink_hotspot(){
                 all=$i
 
                 echo "counting peak frequency"
-		cat $wd/Hotspot/all_factor.${typeCL}.bed | sort -T /dev/shm/ -k1,1 -k2,2n | mergeBed -i stdin -s -d -1 -c 4,5,6 -o collapse,count,distinct -delim "|" | cut -f1-3,5-7 > $wd/Hotspot/all_factor.${typeCL}_count.bed
+		cat $wd/Hotspot/all_factor.${typeCL}.bed | sort -T /dev/shm/ -k1,1 -k2,2n | bedtools merge -i stdin -s -d -1 -c 4,5,6 -o collapse,count,distinct -delim "|" | cut -f1-3,5-7 > $wd/Hotspot/all_factor.${typeCL}_count.bed
                 rm $wd/Hotspot/all_factor.${typeCL}.bed
 
                 echo "defining hotspots"
@@ -126,7 +126,7 @@ function filter_peaks(){
 	for typeCL in CITS CIMS crosslink; do
 		hotspot=${TARGETdir}/Hotspot/${typeCL}_crosslink_hotspot.bed
 
-		cat ${OUTdir}/combined_${typeCL}_${pv}_${TARGET}.premerged.bed | subtractBed -A -s -a stdin -b ${hotspot} | sort -T $rd -k1,1 -k2,2n | cut -f1-6 > ${OUTdir}/combined_${typeCL}_${pv}_${TARGET}.merged.bed
+		cat ${OUTdir}/combined_${typeCL}_${pv}_${TARGET}.premerged.bed | bedtools subtract -A -s -a stdin -b ${hotspot} | sort -T $rd -k1,1 -k2,2n | cut -f1-6 > ${OUTdir}/combined_${typeCL}_${pv}_${TARGET}.merged.bed
 		cat ${OUTdir}/combined_${typeCL}_${pv}_${TARGET}.merged.bed | awk -v OFS="\t" '{if($5 > 1) print $0}' > ${OUTdir}/combined_${typeCL}_${pv}_${TARGET}.recurring.bed
 	done
 
@@ -150,9 +150,11 @@ function filter_peaks(){
  	if [[ $TARGET == "Input" ]]; then bamfiles=$Inputbam; fi
 	echo "Filtering merged peaks using input read counts"
         
-	Rscript run_filter_peaks_by_Input.R $bamfiles $Inputbam ${OUTdir}/combined_CITS_${pv}_${TARGET}.merged.bed $InputDir 0.5 FALSE
+	Rscript $scriptDir/run_filter_peaks_by_Input.R $bamfiles $Inputbam ${OUTdir}/combined_CITS_${pv}_${TARGET}.merged.bed $InputDir 0.5 FALSE
 
-	rm ${OUTdir}/combined_CITS_${pv}_${TARGET}.bed ${OUTdir}/combined_CIMS_${pv}_${TARGET}.bed
+	if [[ -e ${OUTdir}/combined_CITS_${pv}_${TARGET}.bed ]]; then
+                rm ${OUTdir}/combined_CITS_${pv}_${TARGET}.bed ${OUTdir}/combined_CIMS_${pv}_${TARGET}.bed
+        fi
 }
 
 function discover_motif(){
@@ -168,7 +170,7 @@ function discover_motif(){
      
 	## bed intervals will be extended 10 bp on each side
 	#crosslinksites_to_dreme_motif.sh combined_CIMS_${pv}_${TARGET}.recurring.bed 10
-	crosslinksites_to_dreme_motif.sh combined_CITS_${pv}_${TARGET}.merged_filtered.bed 10
+	$scriptDir/crosslinksites_to_dreme_motif.sh combined_CITS_${pv}_${TARGET}.merged_filtered.bed 10
 	#crosslinksites_to_dreme_motif.sh combined_crosslink_${pv}_${TARGET}.recurring.bed 10
 	
 }

@@ -29,7 +29,7 @@ library(pheatmap)
 library(scales)
 library(RMariaDB)
 library(RCAS)
-library(tictoc)
+#library(tictoc)
 #library(gg.layers) # not available on BC cluster
 
 
@@ -2019,8 +2019,7 @@ plot_reference_locus <- function(queryfiles, centerfiles, ext=c(0,0), hl=c(0,0),
          stat_df[[paste(querylabel,centerlabel,sep=":")]] <- subdf
 
          if(verbose){
-               tictoc::tic()
-
+             
             df_list <- lapply(seq(1:nrow(submatrix)), function(j){
               df <- data.frame(t(submatrix[j,]), as.factor(colLabel[xmin:xmax]),
                                                        as.factor(rep(querylabel, ncol(submatrix))), as.factor(rep(centerlabel, ncol(submatrix))))
@@ -2030,7 +2029,7 @@ plot_reference_locus <- function(queryfiles, centerfiles, ext=c(0,0), hl=c(0,0),
 
             colnames(factor_df) <- c("Intensity", "Position", "Query", "Reference")
             twoFactor_df[[paste(querylabel,centerlabel,sep=":")]] <-  factor_df
-            tictoc::toc()
+           
          }
       }
     }
@@ -2434,7 +2433,7 @@ plot_reference_locus <- function(queryfiles, centerfiles, ext=c(0,0), hl=c(0,0),
            stat_df[[paste(ratiolabel,centerlabel,sep=":")]] <- subdf
 
            if(verbose){
-               tictoc::tic()
+               
 
               df_list <- lapply(seq(1:nrow(submatrix)), function(j){
                  df <- data.frame(t(submatrix[j,]), as.factor(colLabel[xmin:xmax]),
@@ -2445,7 +2444,7 @@ plot_reference_locus <- function(queryfiles, centerfiles, ext=c(0,0), hl=c(0,0),
 
               colnames(factor_df) <- c("Intensity", "Position", "Query", "Reference")
               twoFactor_df[[paste(ratiolabel,centerlabel,sep=":")]] <-  factor_df
-              tictoc::toc()
+             
            }
         }
       }
@@ -4537,12 +4536,12 @@ filter_peaks_by_differential <- function(peakFile, peakBam,  refBam, refDir=NULL
    print("Running 'filter_peaks_by_differential' ...")
    if(!is.null(refDir)){
       if(file.exists(file.path(refDir,"bamInputs.rds"))){
-	print("reading bamInputs.rds")
+	    print("reading bamInputs.rds")
          refBams <- readRDS(file.path(refDir, "bamInputs.rds"))
       }else{
          refBams <- handle_input(refBam, CLIP_reads=FALSE, fix_width=0, useScore=FALSE, outRle=FALSE, useSizeFactor=FALSE, genome=genome)
          saveRDS(refBams, file=file.path(refDir, "bamInputs.rds"))
-	print("saving bamInputs.rds")
+	       print("saving bamInputs.rds")
       }
    }else{
       refBams <- handle_input(refBam, CLIP_reads=FALSE, fix_width=0, useScore=FALSE, outRle=FALSE, useSizeFactor=FALSE, genome=genome)
