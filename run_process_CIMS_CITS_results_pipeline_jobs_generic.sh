@@ -24,13 +24,13 @@ function main(){
 		if [[ $factor == "*" ]] && [[ $f != "Input" ]]; then
 		 	if [[ ! -d ${f}_CITS_crosslinkSite ]] || [[ $replace = true ]]; then
 				echo "processing $f ..."
-				submitjob -w 48 -m 40 $cmd $f $wd $pv $fun $replace
+				submitjob -m 20 $cmd $f $wd $pv $fun $replace
 			else
 				echo "${f}_CITS_crosslinkSite exists already, to modify files in the directory, set 'replace'=true"
 			fi
 		elif [[ $factor != "*" ]]; then 
 			echo "processing $f ..."
-                                submitjob -w 100 -m 100 $cmd $f $wd $pv $fun $replace
+                                submitjob -w 48 -m 40 $cmd $f $wd $pv $fun $replace
 		fi
 	done 
 }
